@@ -11,4 +11,5 @@ public class TransactionData {
 	public int packetSize;
 	public String packetId;
 	public long timestamp;
+	public String path;
 }

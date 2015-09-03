@@ -26,7 +26,8 @@ public class WebServerConnector {
 			String content = "{ \"source\": \"" + String.valueOf(txData.senderAddr) + "\","
 					+ "\"destination\": \""+ String.valueOf(txData.receiverAddr) + "\","
 					+ "\"packetid\": \""+ String.valueOf(txData.packetId) + "\","
-					+ "\"transmission\": \""+ String.valueOf(txData.packetSize) +"\"}";
+					+ "\"path\": \""+ String.valueOf(txData.path) + "\","
+					+ "\"packetsize\": \""+ String.valueOf(txData.packetSize) +"\"}";
 			sendMqtt(topic, content);
 
 			return null;

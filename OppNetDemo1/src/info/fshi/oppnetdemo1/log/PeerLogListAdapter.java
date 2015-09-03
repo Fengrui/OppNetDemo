@@ -59,7 +59,7 @@ public class PeerLogListAdapter extends ArrayAdapter<PeerLog> {
 			holder.dir = (TextView)row.findViewById(R.id.peer_direction);
 			holder.mac = (TextView)row.findViewById(R.id.peer_mac_addr);
 			holder.len = (TextView)row.findViewById(R.id.peer_queue_len);
-			holder.ctime = (TextView)row.findViewById(R.id.peer_connect_time);
+//			holder.ctime = (TextView)row.findViewById(R.id.peer_connect_time);
 			row.setTag(holder);
 		}
 		else
@@ -78,7 +78,7 @@ public class PeerLogListAdapter extends ArrayAdapter<PeerLog> {
 			
 			holder.mac.setText(String.valueOf(peerLog.mac));
 			holder.len.setText(String.valueOf(peerLog.qLen));
-			holder.ctime.setText(String.valueOf(peerLog.eTimestamp - peerLog.sTimestamp) + "ms");
+//			holder.ctime.setText(String.valueOf(peerLog.eTimestamp - peerLog.sTimestamp) + "ms");
 		}
 		return row;
 	}

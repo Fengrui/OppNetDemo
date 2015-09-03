@@ -13,6 +13,10 @@
     <string name="arrow">arrow</string>
     
     <string name="instruction">Instruction goes here...</string>
+    
+    <string name="packet_received_legend"># Received</string>
+    <string name="packet_sent_legend"># Sent</string>
+    <string name="credits_earned">credits</string>
 
     <color name="white">#FFFFFF</color>
     <color name="grey">#9C9C98</color>

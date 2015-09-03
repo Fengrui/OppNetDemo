@@ -3,7 +3,7 @@
     android:id="@+id/phone_blue" >
 
     <stroke
-        android:width="2dp"
+        android:width="6dp"
         android:color="#ff207d94" />
 
     <padding

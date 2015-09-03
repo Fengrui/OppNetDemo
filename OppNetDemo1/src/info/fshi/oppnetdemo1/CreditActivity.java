@@ -3,6 +3,7 @@ package info.fshi.oppnetdemo1;
 import info.fshi.oppnetdemo1.bluetooth.BTCom;
 import info.fshi.oppnetdemo1.bluetooth.BTController;
 import info.fshi.oppnetdemo1.bluetooth.BTScanningAlarm;
+import info.fshi.oppnetdemo1.data.QueueItem;
 import info.fshi.oppnetdemo1.data.QueueManager;
 import info.fshi.oppnetdemo1.http.TransactionData;
 import info.fshi.oppnetdemo1.http.WebServerConnector;
@@ -31,10 +32,12 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.LinearLayout.LayoutParams;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -61,6 +64,10 @@ public class CreditActivity extends Activity {
 	private TextView txMyQueueLen;
 	private TextView txPeerQueueLen;
 
+	private TextView packetsReceived;
+	private TextView packetsSent;
+	private TextView creditsEarned;
+
 	private ImageView arrowView;
 	private TextView byteSent;
 
@@ -81,31 +88,107 @@ public class CreditActivity extends Activity {
 		peerPhoneMac = (TextView) findViewById(R.id.peer_phone_mac);
 
 		arrowView = (ImageView) findViewById(R.id.transmission_signal);
+
 		byteSent = (TextView) findViewById(R.id.byte_sent);
 
 		txMyQueueLen = (TextView) findViewById(R.id.my_queue_len);
 		txPeerQueueLen = (TextView) findViewById(R.id.peer_queue_len);
 
+		packetsReceived = (TextView) findViewById(R.id.packets_received);
+		packetsSent = (TextView) findViewById(R.id.packets_sent);
+		creditsEarned = (TextView) findViewById(R.id.credits_earned);
+
+		packetsReceived.setText("0");
+		packetsSent.setText("0");
+		creditsEarned.setText("0");
+
 		initBluetoothUtils();
 
 		registerBroadcastReceivers();
 
-		myPhoneMac.setText(mBluetoothAdapter.getAddress());
-		txMyQueueLen.setText(String.valueOf(myQueue.getQueueLength()));
-		updatePhoneGraph(myQueue.getQueueLength(), myPhone);
+		if(Devices.PARTICIPATING_DEVICES_ID.get(mBluetoothAdapter.getAddress()) != null){
+			myPhoneMac.setText("ID_" + String.valueOf(Devices.PARTICIPATING_DEVICES_ID.get(mBluetoothAdapter.getAddress())));
+		}
+		
+		if(Devices.PARTICIPATING_DEVICES.get(mBluetoothAdapter.getAddress()) == Devices.DEVICE_TYPE_RELAY){
+			txMyQueueLen.setText(String.valueOf(myQueue.getQueueLength()));
+		}
+		updatePhoneGraph(myQueue.ID, myPhone);
 
 		mWebConnector = new WebServerConnector();
 	}
 
-	private void updatePhoneGraph(int len, View phone){
-		if(len > 10){
-			phone.setBackgroundResource(R.drawable.phonered);
-		}else if(len > 5){
-			phone.setBackgroundResource(R.drawable.phoneyellow);
-		}else if(len == -1){
-			phone.setBackgroundResource(R.drawable.phoneblue);
+	private LayoutParams getLayoutParams(int type){
+		LayoutParams layoutParams;
+		final float scale = mContext.getResources().getDisplayMetrics().density;
+
+		if(type == 0){
+			int width = (int) (50 * scale + 0.5f);
+			int height = (int) (100 * scale + 0.5f);
+			layoutParams= new LayoutParams(width, height);
+			layoutParams.gravity = Gravity.CENTER;
 		}else{
+			int width = (int) (70 * scale + 0.5f);
+			int height = (int) (50 * scale + 0.5f);
+			layoutParams= new LayoutParams(width, height);
+			layoutParams.gravity = Gravity.CENTER;
+		}
+		return layoutParams;
+	}
+
+	private void updatePhoneGraph(int id, View phone){
+		switch(id){
+		case 1:
+			phone.setLayoutParams(getLayoutParams(0));
+			phone.setBackgroundResource(R.drawable.phoneteal);
+			break;
+		case 2:
+			phone.setLayoutParams(getLayoutParams(0));
+			phone.setBackgroundResource(R.drawable.phoneblue);
+			break;
+		case 3:
+			phone.setLayoutParams(getLayoutParams(0));
+			phone.setBackgroundResource(R.drawable.phonecrimson);
+			break;
+		case 4:
+			phone.setLayoutParams(getLayoutParams(0));
+			phone.setBackgroundResource(R.drawable.phoneorange);
+			break;
+		case 5:
+			phone.setLayoutParams(getLayoutParams(0));
 			phone.setBackgroundResource(R.drawable.phonegreen);
+			break;
+		case 6:
+			phone.setLayoutParams(getLayoutParams(0));
+			phone.setBackgroundResource(R.drawable.phoneyellow);
+			break;
+		case 7:
+			phone.setLayoutParams(getLayoutParams(0));
+			phone.setBackgroundResource(R.drawable.phonered);
+			break;
+		case 8:
+			phone.setLayoutParams(getLayoutParams(0));
+			phone.setBackgroundResource(R.drawable.phoneaqua);
+			break;
+		case 9:
+			phone.setLayoutParams(getLayoutParams(0));
+			phone.setBackgroundResource(R.drawable.phonepurple);
+			break;
+		case 10:
+			phone.setLayoutParams(getLayoutParams(0));
+			phone.setBackgroundResource(R.drawable.phonepink);
+			break;
+		case 11:
+			phone.setLayoutParams(getLayoutParams(1));
+			phone.setBackgroundResource(R.drawable.sensor);
+			break;
+		case 0:
+			phone.setLayoutParams(getLayoutParams(1));
+			phone.setBackgroundResource(R.drawable.sensor);
+			break;
+		default:
+			phone.setBackgroundResource(R.drawable.phoneblack);
+			break;
 		}
 	}
 
@@ -192,7 +275,6 @@ public class CreditActivity extends Activity {
 					sendToSink = true;
 					break;
 				}
-
 			}
 			if(indexToRemove >= 0){
 				deviceSensor.remove(indexToRemove);
@@ -289,9 +371,12 @@ public class CreditActivity extends Activity {
 					Toast.makeText(mContext, "send data to " + re.MAC, Toast.LENGTH_LONG).show();
 					arrowView.setBackgroundResource(R.drawable.arrowright);
 					byteSent.setText(re.data + " (" + re.data.length() + " bytes)");
-					updatePhoneGraph(-1, peerPhone);
-					txPeerQueueLen.setText("K");
-					peerPhoneMac.setText(re.MAC);
+					if(Devices.PARTICIPATING_DEVICES_ID.get(re.MAC) != null){
+						updatePhoneGraph(Devices.PARTICIPATING_DEVICES_ID.get(re.MAC), peerPhone);
+						peerPhoneMac.setText("ID_" + String.valueOf(Devices.PARTICIPATING_DEVICES_ID.get(re.MAC)));
+					}
+					txPeerQueueLen.setText("");
+					
 				}
 			}
 		}
@@ -338,9 +423,11 @@ public class CreditActivity extends Activity {
 					Toast.makeText(mContext, "send data to " + re.MAC, Toast.LENGTH_LONG).show();
 					arrowView.setBackgroundResource(R.drawable.arrowright);
 					byteSent.setText(re.data + " (" + re.data.length() + " bytes)");
-					updatePhoneGraph(-1, peerPhone);
-					txPeerQueueLen.setText("R");
-					peerPhoneMac.setText(re.MAC);
+					if(Devices.PARTICIPATING_DEVICES_ID.get(re.MAC) != null){
+						updatePhoneGraph(Devices.PARTICIPATING_DEVICES_ID.get(re.MAC), peerPhone);
+						txPeerQueueLen.setText("");
+						peerPhoneMac.setText("ID_" + String.valueOf(Devices.PARTICIPATING_DEVICES_ID.get(re.MAC)));
+					}
 				}
 			}
 		}
@@ -429,9 +516,11 @@ public class CreditActivity extends Activity {
 								Log.d(TAG, "send data to " + MAC);
 								arrowView.setBackgroundResource(R.drawable.arrowright);
 								byteSent.setText(packet[1] + " (" + packet[1].length() + " bytes)");
-								updatePhoneGraph(peerQueueLen, peerPhone);
-								txPeerQueueLen.setText(String.valueOf(peerQueueLen));
-								peerPhoneMac.setText(MAC);
+								if(Devices.PARTICIPATING_DEVICES_ID.get(MAC) != null){
+									updatePhoneGraph(Devices.PARTICIPATING_DEVICES_ID.get(MAC), peerPhone);
+									txPeerQueueLen.setText(String.valueOf(peerQueueLen));
+									peerPhoneMac.setText("ID_" + String.valueOf(Devices.PARTICIPATING_DEVICES_ID.get(MAC)));
+								}
 							}
 							else{
 								mBTController.stopConnection(MAC);
@@ -449,18 +538,30 @@ public class CreditActivity extends Activity {
 						Log.d(TAG, "received packet " + id);
 						Log.d(TAG, "path : " + path.toString());
 
+						myQueue.packetsReceived ++;
+						packetsReceived.setText(String.valueOf(myQueue.packetsReceived));
+						creditsEarned.setText(String.valueOf(myQueue.packetsReceived + myQueue.packetsSent));
+
 						myQueue.appendToQueue(id, path, data);
-						updatePhoneGraph(myQueue.getQueueLength(), myPhone);
-						updatePhoneGraph(-1, peerPhone);
-						txMyQueueLen.setText(String.valueOf(myQueue.getQueueLength()));
-						if(Devices.PARTICIPATING_DEVICES.get(MAC) == Devices.DEVICE_TYPE_RELAY){
+						updatePhoneGraph(myQueue.ID, myPhone);
+						if(Devices.PARTICIPATING_DEVICES_ID.get(MAC) != null){
+							updatePhoneGraph(Devices.PARTICIPATING_DEVICES_ID.get(MAC), peerPhone);
+						}
+						if(Devices.PARTICIPATING_DEVICES.get(mBluetoothAdapter.getAddress())!=null && Devices.PARTICIPATING_DEVICES.get(mBluetoothAdapter.getAddress()) == Devices.DEVICE_TYPE_RELAY){
+							txMyQueueLen.setText(String.valueOf(myQueue.getQueueLength()));
+						}else{
+							txMyQueueLen.setText("");
+						}
+						if(Devices.PARTICIPATING_DEVICES.get(MAC)!= null && Devices.PARTICIPATING_DEVICES.get(MAC) == Devices.DEVICE_TYPE_RELAY){
 							txPeerQueueLen.setText("R");
-						}else if(Devices.PARTICIPATING_DEVICES.get(MAC) == Devices.DEVICE_TYPE_SENSOR){
-							txPeerQueueLen.setText("S");
+						}else{
+							txPeerQueueLen.setText("");
 						}
 
-						peerPhoneMac.setText(MAC);
-
+						if(Devices.PARTICIPATING_DEVICES_ID.get(MAC) != null){
+							peerPhoneMac.setText("ID_" + String.valueOf(Devices.PARTICIPATING_DEVICES_ID.get(MAC)));
+						}
+						
 						arrowView.setBackgroundResource(R.drawable.arrowleft);
 						byteSent.setText(data.toString() + " (" + String.valueOf(data.length()) + " bytes)");
 
@@ -475,23 +576,41 @@ public class CreditActivity extends Activity {
 						}
 						mBTController.sendToBTDevice(MAC, ack);
 
-						// webconnector
-						TransactionData txData = new TransactionData();
-						txData.senderAddr = MAC;
-						txData.receiverAddr = mBluetoothAdapter.getAddress();
-						txData.packetSize = data.length();
-						txData.packetId = id;
-						txData.timestamp = System.currentTimeMillis();
-//						mWebConnector.reportTransactionData(txData);
-
 						// add data to log
+						int logIndex = -1;
 						for(PeerLog log:peerLogs){
 							if(log.mac.equalsIgnoreCase(MAC)){
+								logIndex = peerLogs.indexOf(log);
 								log.dir = 1;
 								log.qLen = myQueue.getQueueLength();
 								log.eTimestamp = System.currentTimeMillis();
 								PeerLogList.peerLogList.add(log);
+								break;
 							}
+						}
+						if(logIndex >= 0){
+							peerLogs.remove(logIndex);
+						}
+
+						// webconnector
+						QueueItem qItem = myQueue.getFromQueue(id);
+						if(qItem != null){
+
+							TransactionData txData = new TransactionData();
+							txData.senderAddr = MAC;
+							txData.receiverAddr = mBluetoothAdapter.getAddress();
+							txData.packetSize = data.length();
+							txData.packetId = id;
+							txData.timestamp = System.currentTimeMillis();
+							StringBuffer sb = new StringBuffer();
+							for(int i=0; i< qItem.path.size(); i++){
+								sb.append(qItem.path.get(i));
+								if(i != qItem.path.size() - 1){
+									sb.append(",");
+								}
+							}
+							txData.path = sb.toString();
+							mWebConnector.reportTransactionData(txData);
 						}
 
 						Log.d(TAG, "send ack to " + MAC);
@@ -499,16 +618,28 @@ public class CreditActivity extends Activity {
 					case BasicPacket.PACKET_TYPE_DATA_ACK:
 						Log.d(TAG, "receive ack");
 						mBTController.stopConnection(MAC);
-						updatePhoneGraph(myQueue.getQueueLength(), myPhone);
-						txMyQueueLen.setText(String.valueOf(myQueue.getQueueLength()));
+						updatePhoneGraph(myQueue.ID, myPhone);
+
+						myQueue.packetsSent ++;
+						packetsSent.setText(String.valueOf(myQueue.packetsSent));
+						creditsEarned.setText(String.valueOf(myQueue.packetsReceived + myQueue.packetsSent));
+
+						if(Devices.PARTICIPATING_DEVICES.get(mBluetoothAdapter.getAddress()) != null && Devices.PARTICIPATING_DEVICES.get(mBluetoothAdapter.getAddress()) == Devices.DEVICE_TYPE_RELAY){
+							txMyQueueLen.setText(String.valueOf(myQueue.getQueueLength()));
+						}
 						// add data to log
+						int cLogIndex = -1;
 						for(PeerLog log:peerLogs){
 							if(log.mac.equalsIgnoreCase(MAC)){
+								cLogIndex = peerLogs.indexOf(log);
 								log.dir = 0;
 								log.qLen = myQueue.getQueueLength();
 								log.eTimestamp = System.currentTimeMillis();
 								PeerLogList.peerLogList.add(log);
 							}
+						}
+						if(cLogIndex >= 0){
+							peerLogs.remove(cLogIndex);
 						}
 						break;
 					default:
@@ -551,12 +682,14 @@ public class CreditActivity extends Activity {
 				if(Devices.PARTICIPATING_DEVICES.containsKey(deviceMac.toUpperCase(Locale.ENGLISH))){ // only respond when a device is in the list
 					if(!devicesFoundStringArray.contains(deviceMac)){
 						devicesFoundStringArray.add(deviceMac);
-						if(Devices.PARTICIPATING_DEVICES.get(deviceMac.toUpperCase(Locale.ENGLISH)) == Devices.DEVICE_TYPE_SENSOR){
-							deviceSensor.add(device);
-						}else if(Devices.PARTICIPATING_DEVICES.get(deviceMac.toUpperCase(Locale.ENGLISH)) == Devices.DEVICE_TYPE_SINK){
-							deviceSink.add(device);
-						}else{
-							deviceRelay.add(device);
+						if(Devices.PARTICIPATING_DEVICES.get(deviceMac.toUpperCase(Locale.ENGLISH))!= null){
+							if(Devices.PARTICIPATING_DEVICES.get(deviceMac.toUpperCase(Locale.ENGLISH)) == Devices.DEVICE_TYPE_SENSOR){
+								deviceSensor.add(device);
+							}else if(Devices.PARTICIPATING_DEVICES.get(deviceMac.toUpperCase(Locale.ENGLISH)) == Devices.DEVICE_TYPE_SINK){
+								deviceSink.add(device);
+							}else{
+								deviceRelay.add(device);
+							}
 						}
 					}
 				}

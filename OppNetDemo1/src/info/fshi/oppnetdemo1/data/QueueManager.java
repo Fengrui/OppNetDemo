@@ -1,6 +1,7 @@
 package info.fshi.oppnetdemo1.data;
 
 import info.fshi.oppnetdemo1.utils.Constants;
+import info.fshi.oppnetdemo1.utils.Devices;
 
 import java.util.ArrayList;
 import java.util.Random;
@@ -11,30 +12,27 @@ public class QueueManager {
 
 	private final static String TAG = "QueueManager";
 
-	private int ID;
+	public int ID;
 
 	private ArrayList<QueueItem> queue = new ArrayList<QueueItem>();
 	
 	public long sensorTimestamp = 0;
 	public long sinkTimestamp = 0;
 
+	public int packetsReceived = 0;
+	public int packetsSent = 0;
+	
 	// queue is a json with format {sequence of ids : content}
 
 	public QueueManager(String s){
 		// for test purpose, init queue content
-		ID = computeHash(s);
+		if(Devices.PARTICIPATING_DEVICES_ID.get(s) != null){
+			ID = Devices.PARTICIPATING_DEVICES_ID.get(s);
+		}
 		if(Constants.DEBUG){
 			initQueue();
 			Log.d(TAG, "init queue");
 		}
-	}
-
-	private int computeHash(String s){
-		int hash=7;
-		for (int i=0; i < s.length(); i++) {
-			hash = hash*3 + s.charAt(i);
-		}
-		return hash;
 	}
 
 	private void initQueue(){
@@ -51,12 +49,20 @@ public class QueueManager {
 
 	}
 
+	public QueueItem getFromQueue(String packetId){
+		for(QueueItem qItem:queue){
+			if(qItem.packetId.equalsIgnoreCase(packetId)){
+				return qItem;
+			}
+		}
+		return null;
+	}
+	
 	public void appendToQueue(String packetId, String path, String data){
 
 		QueueItem qItem = new QueueItem();
 		qItem.packetId = packetId;
 		qItem.data = data;
-		qItem.path.add(this.ID);
 		String[] IDs = path.split(",");
 		boolean hasLoop = false;
 		for(String ID:IDs){
@@ -66,6 +72,7 @@ public class QueueManager {
 			}
 			qItem.path.add(Integer.parseInt(ID));
 		}
+		qItem.path.add(this.ID);
 		if(!hasLoop){
 			queue.add(qItem);
 		}	
@@ -75,7 +82,7 @@ public class QueueManager {
 	// format: ID1,ID2,ID3 && data
 
 	public String[] getFromQueue(int length, String MAC){
-		int peerID = computeHash(MAC);
+		int peerID = Devices.PARTICIPATING_DEVICES_ID.get(MAC);
 		String[] data = new String[3];
 		ArrayList<QueueItem> newQueue = new ArrayList<QueueItem>();
 		for(QueueItem qItem: queue){

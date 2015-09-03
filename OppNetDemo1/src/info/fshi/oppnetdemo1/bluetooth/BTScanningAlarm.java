@@ -40,8 +40,10 @@ public class BTScanningAlarm extends BroadcastReceiver {
 		// init bt controller
 		mBTController = btController;
 
-		if(BluetoothAdapter.getDefaultAdapter().isEnabled() && Devices.PARTICIPATING_DEVICES.get(BluetoothAdapter.getDefaultAdapter().getAddress()) == Devices.DEVICE_TYPE_RELAY){                           
-			scheduleScanning(context, System.currentTimeMillis());
+		if(Devices.PARTICIPATING_DEVICES.get(BluetoothAdapter.getDefaultAdapter().getAddress()) != null){
+			if(BluetoothAdapter.getDefaultAdapter().isEnabled() && Devices.PARTICIPATING_DEVICES.get(BluetoothAdapter.getDefaultAdapter().getAddress()) == Devices.DEVICE_TYPE_RELAY){                           
+				scheduleScanning(context, System.currentTimeMillis());
+			}
 		}
 	}
 	/**
@@ -106,6 +108,6 @@ public class BTScanningAlarm extends BroadcastReceiver {
 		}
 		// schedule a new scan
 		Random r = new Random();
-		scheduleScanning(context, System.currentTimeMillis() + interval + (r.nextInt(3000 - 1000) + 1000) * 10);
+		scheduleScanning(context, System.currentTimeMillis() + interval + (r.nextInt(2000 - 1000) + 1000) * 10);
 	}
 }
