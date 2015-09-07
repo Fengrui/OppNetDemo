@@ -128,8 +128,8 @@ public class CreditActivity extends Activity {
 			layoutParams= new LayoutParams(width, height);
 			layoutParams.gravity = Gravity.CENTER;
 		}else{
-			int width = (int) (70 * scale + 0.5f);
-			int height = (int) (50 * scale + 0.5f);
+			int width = (int) (80 * scale + 0.5f);
+			int height = (int) (60 * scale + 0.5f);
 			layoutParams= new LayoutParams(width, height);
 			layoutParams.gravity = Gravity.CENTER;
 		}
@@ -235,8 +235,8 @@ public class CreditActivity extends Activity {
 	@Override
 	protected void onStop() {
 		// TODO Auto-generated method stub
+		Log.d(TAG, "onStop()");
 		super.onStop();
-		BTScanningAlarm.stopScanning(mContext);
 	}
 
 
@@ -368,15 +368,13 @@ public class CreditActivity extends Activity {
 			protected void onPostExecute(Result re) {
 				// TODO Auto-generated method stub
 				if(re.length > 0){
-					Toast.makeText(mContext, "send data to " + re.MAC, Toast.LENGTH_LONG).show();
 					arrowView.setBackgroundResource(R.drawable.arrowright);
-					byteSent.setText(re.data + " (" + re.data.length() + " bytes)");
+					byteSent.setText(re.data.length() + " bytes");
 					if(Devices.PARTICIPATING_DEVICES_ID.get(re.MAC) != null){
 						updatePhoneGraph(Devices.PARTICIPATING_DEVICES_ID.get(re.MAC), peerPhone);
 						peerPhoneMac.setText("ID_" + String.valueOf(Devices.PARTICIPATING_DEVICES_ID.get(re.MAC)));
 					}
 					txPeerQueueLen.setText("");
-					
 				}
 			}
 		}
@@ -420,9 +418,8 @@ public class CreditActivity extends Activity {
 			protected void onPostExecute(Result re) {
 				// TODO Auto-generated method stub
 				if(re.length > 0){
-					Toast.makeText(mContext, "send data to " + re.MAC, Toast.LENGTH_LONG).show();
 					arrowView.setBackgroundResource(R.drawable.arrowright);
-					byteSent.setText(re.data + " (" + re.data.length() + " bytes)");
+					byteSent.setText(re.data.length() + " bytes");
 					if(Devices.PARTICIPATING_DEVICES_ID.get(re.MAC) != null){
 						updatePhoneGraph(Devices.PARTICIPATING_DEVICES_ID.get(re.MAC), peerPhone);
 						txPeerQueueLen.setText("");
@@ -515,7 +512,7 @@ public class CreditActivity extends Activity {
 								peerQueueLen += 1;
 								Log.d(TAG, "send data to " + MAC);
 								arrowView.setBackgroundResource(R.drawable.arrowright);
-								byteSent.setText(packet[1] + " (" + packet[1].length() + " bytes)");
+								byteSent.setText(packet[1].length() + " bytes");
 								if(Devices.PARTICIPATING_DEVICES_ID.get(MAC) != null){
 									updatePhoneGraph(Devices.PARTICIPATING_DEVICES_ID.get(MAC), peerPhone);
 									txPeerQueueLen.setText(String.valueOf(peerQueueLen));
@@ -563,7 +560,7 @@ public class CreditActivity extends Activity {
 						}
 						
 						arrowView.setBackgroundResource(R.drawable.arrowleft);
-						byteSent.setText(data.toString() + " (" + String.valueOf(data.length()) + " bytes)");
+						byteSent.setText(String.valueOf(data.length()) + " bytes");
 
 						Log.d(TAG, "receive " + data.length() + " bytes data from " + MAC);
 						Log.d(TAG, "new queue size " + myQueue.getQueueLength());
@@ -766,6 +763,10 @@ public class CreditActivity extends Activity {
 		case R.id.action_view_log:
 			PeerLogListDialog peerLotListDialog = new PeerLogListDialog(mContext);
 			peerLotListDialog.show();
+			break;
+		case R.id.action_set_broker:
+			BrokerAddrDialog brokerAddrDialog = new BrokerAddrDialog(mContext);
+			brokerAddrDialog.show();
 			break;
 		default:
 			break;

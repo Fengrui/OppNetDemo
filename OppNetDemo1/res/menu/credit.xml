@@ -1,11 +1,17 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context="info.fshi.oppnetdemo1.InfoActivity" >
+    tools:context="info.fshi.oppnetdemo1.CreditActivity" >
 
     <item
         android:id="@+id/action_view_log"
         android:orderInCategory="100"
         android:showAsAction="always"
         android:title="@string/action_view_log"/>
+    
+    <item
+        android:id="@+id/action_set_broker"
+        android:orderInCategory="100"
+        android:showAsAction="always"
+        android:title="@string/action_set_broker"/>
 
 </menu>
