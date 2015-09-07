@@ -46,7 +46,6 @@ public class QueueManager {
 			qItem.data = sb.toString();
 			queue.add(qItem);
 		}
-
 	}
 
 	public QueueItem getFromQueue(String packetId){
