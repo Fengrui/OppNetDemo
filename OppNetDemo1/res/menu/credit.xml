@@ -3,15 +3,9 @@
     tools:context="info.fshi.oppnetdemo1.CreditActivity" >
 
     <item
-        android:id="@+id/action_view_log"
+        android:id="@+id/action_authorize"
         android:orderInCategory="100"
         android:showAsAction="always"
-        android:title="@string/action_view_log"/>
-    
-    <item
-        android:id="@+id/action_set_broker"
-        android:orderInCategory="100"
-        android:showAsAction="always"
-        android:title="@string/action_set_broker"/>
+        android:title="@string/action_authorise"/>
 
 </menu>
