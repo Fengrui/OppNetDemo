@@ -169,24 +169,26 @@ public class BTCom {
 	 */
 	public void startScan(boolean scanStart, long duration) {
 		if (scanStart){ // if command is to start scanning
-			if (mBluetoothAdapter.isDiscovering()){ // if scan is already started, do nothing
-				return;//mBluetoothAdapter.cancelDiscovery();
-			}
-
-			//if(getActiveConnectionsCount() == 0){
-			mBluetoothAdapter.startDiscovery();
-
-			// Cancel the discovery process after SCAN_INTERVAL
-			final Handler discoveryHandler = new Handler();
-			discoveryHandler.postDelayed(new Runnable() {
-				@Override
-				public void run() {
-					if (mBluetoothAdapter.isDiscovering()){
-						mBluetoothAdapter.cancelDiscovery();
-					}
+			if(getActiveConnectionsCount() == 0){
+				if (mBluetoothAdapter.isDiscovering()){ // if scan is already started, do nothing
+					return;//mBluetoothAdapter.cancelDiscovery();
 				}
-			}, duration);
-			//}
+
+				//if(getActiveConnectionsCount() == 0){
+				mBluetoothAdapter.startDiscovery();
+
+				// Cancel the discovery process after SCAN_INTERVAL
+				final Handler discoveryHandler = new Handler();
+				discoveryHandler.postDelayed(new Runnable() {
+					@Override
+					public void run() {
+						if (mBluetoothAdapter.isDiscovering()){
+							mBluetoothAdapter.cancelDiscovery();
+						}
+					}
+				}, duration);
+				//}
+			}
 		}
 		else{ // if command is to stop scanning
 			mBluetoothAdapter.cancelDiscovery();
