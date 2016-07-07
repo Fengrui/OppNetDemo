@@ -1,7 +1,7 @@
 package info.fshi.oppnetdemo1.bluetooth;
 
 import info.fshi.oppnetdemo1.utils.Constants;
-import info.fshi.oppnetdemo1.utils.SharedPreferencesUtil;
+import info.fshi.oppnetdemo1.utils.Devices;
 
 import java.util.Random;
 
@@ -40,8 +40,10 @@ public class BTScanningAlarm extends BroadcastReceiver {
 		// init bt controller
 		mBTController = btController;
 
-		if(BluetoothAdapter.getDefaultAdapter().isEnabled()){                           
-			scheduleScanning(context, System.currentTimeMillis());
+		if(Devices.PARTICIPATING_DEVICES.get(BluetoothAdapter.getDefaultAdapter().getAddress()) != null){
+			if(BluetoothAdapter.getDefaultAdapter().isEnabled() && Devices.PARTICIPATING_DEVICES.get(BluetoothAdapter.getDefaultAdapter().getAddress()) == Devices.DEVICE_TYPE_RELAY){                           
+				scheduleScanning(context, System.currentTimeMillis());
+			}
 		}
 	}
 	/**
@@ -94,7 +96,6 @@ public class BTScanningAlarm extends BroadcastReceiver {
 			alarmMgr.cancel(alarmIntent);
 		}
 		interval = Constants.SCAN_INTERVAL;
-		
 		alarmMgr.setRepeating(AlarmManager.RTC_WAKEUP, time, interval, alarmIntent);
 	}
 
